@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fieldstone Business Services</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="index.html">Fieldstone</a>
+    <nav aria-label="Main">
+      <a href="#services">Services</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <div>
+      <h1>Bookkeeping and business support, handled.</h1>
+      <p class="lead">We keep your accounts, invoices and paperwork in order so you can spend your time running the business.</p>
+      <a class="btn" href="#contact">Book a free call</a>
+    </div>
+
+    <div class="login" id="login">
+      <div id="signedOut">
+        <h2>Client login</h2>
+        <p class="sub">Sign in to view your invoices and documents.</p>
+        <p class="msg" id="msg" role="alert"></p>
+        <form action="login.php" method="post">
+          <input type="hidden" name="csrf" id="csrf" value="">
+          <div class="field">
+            <label for="user">Username</label>
+            <input id="user" name="username" type="text" autocomplete="username" required>
+          </div>
+          <div class="field">
+            <label for="pass">Password</label>
+            <input id="pass" name="password" type="password" autocomplete="current-password" required>
+          </div>
+          <button class="btn" type="submit">Sign in</button>
+        </form>
+        <p class="note">No account yet? <a href="register.php">Create one</a></p>
+      </div>
+      <div id="signedIn" hidden>
+        <h2>Signed in</h2>
+        <p class="sub">You are signed in as <strong id="who"></strong>.</p>
+        <a class="btn" href="dashboard.php">Open dashboard</a>
+      </div>
+    </div>
+  </div>
+
+  <section id="services">
+    <div class="wrap">
+      <h2 class="t">What we do</h2>
+      <div class="services">
+        <div><h3>Bookkeeping</h3><p>Monthly records, reconciled and ready for your accountant or tax filing.</p></div>
+        <div><h3>Invoicing and payments</h3><p>Send invoices, track who has paid, and follow up on late payments.</p></div>
+        <div><h3>Business registration</h3><p>Licences, registrations and renewals, filed correctly and on time.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="wrap about">
+      <div>
+        <h2 class="t">About us</h2>
+        <p>Fieldstone is a small team that works with shops, studios and service businesses. We explain things in plain language and answer the phone.</p>
+      </div>
+      <div id="contact">
+        <h2 class="t">Contact</h2>
+        <address>
+          Email: <a href="mailto:hello@example.com">hello@example.com</a><br>
+          Phone: +000 000 000 000<br>
+          Hours: Monday to Friday, 8:00 to 17:00
+        </address>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer><div class="wrap"><span>&copy; <span id="year">2026</span> Fieldstone Business Services</span></div></footer>
+
+<script>
+document.getElementById('year').textContent = new Date().getFullYear();
+
+// Messages come from a fixed list, so nothing from the URL is ever inserted as HTML.
+var messages = {
+  badlogin:   ['err', 'Username or password is incorrect.'],
+  signin:     ['err', 'Sign in to see your dashboard.'],
+  registered: ['ok',  'Account created. You can sign in now.']
+};
+var key = new URLSearchParams(location.search).get('msg');
+if (messages[key]) {
+  var m = document.getElementById('msg');
+  m.className = 'msg ' + messages[key][0];
+  m.textContent = messages[key][1];
+}
+
+// Ask the server for the security token and whether the visitor is already signed in.
+fetch('status.php', { credentials: 'same-origin' })
+  .then(function (r) { return r.json(); })
+  .then(function (s) {
+    document.getElementById('csrf').value = s.csrf;
+    if (s.loggedIn) {
+      document.getElementById('who').textContent = s.username;
+      document.getElementById('signedOut').hidden = true;
+      document.getElementById('signedIn').hidden = false;
+    }
+  })
+  .catch(function () {
+    var m = document.getElementById('msg');
+    m.className = 'msg err';
+    m.textContent = 'Cannot reach the server. Open this page through http://localhost/fieldstone/ and make sure Apache is running.';
+  });
+</script>
+</body>
+</html>
